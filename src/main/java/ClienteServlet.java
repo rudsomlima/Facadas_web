@@ -11,12 +11,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import modelo.Cliente;
+import service.ClienteService;
 
 @SuppressWarnings("serial")
 @WebServlet(urlPatterns={"/cliente","/Cliente"})
 public class ClienteServlet extends HttpServlet {
 	
-	List<Cliente> lista = new ArrayList<>();
+	ClienteService clienteService;
 	
 	public ClienteServlet() {
 		System.out.println("Construindo Servlet...");
@@ -24,7 +25,9 @@ public class ClienteServlet extends HttpServlet {
 	
 	@Override
 	public void init(ServletConfig config) throws ServletException {
+		clienteService = new ClienteService();
 		System.out.println("Inicializando Servlet");
+		
 	}
 	
 //	@Override
@@ -36,8 +39,13 @@ public class ClienteServlet extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		
+		String i = req.getParameter("i");
+		if(i!=null && i!="") {
+			clienteService.excluir(Integer.parseInt(i));
+		}
+	
 		RequestDispatcher dispatcher = req.getRequestDispatcher("cliente.jsp");
-		req.setAttribute("lista", lista);
+		req.setAttribute("lista", clienteService.getTodosClientes());
 		dispatcher.forward(req, resp);
 			
 	}
@@ -52,11 +60,12 @@ public class ClienteServlet extends HttpServlet {
 		cli.setEmail(email);
 				
 		//Adicionando o cliente na lista de clientes
-		lista.add(cli);
+		
+		clienteService.cadastrar(cli);
 		
 		RequestDispatcher dispatcher = req.getRequestDispatcher("cliente.jsp");
 		req.setAttribute("msg", "Cadastrado com sucesso!");
-		req.setAttribute("lista", lista);
+		req.setAttribute("lista", clienteService.getTodosClientes());
 		dispatcher.forward(req, resp);
 				
 		//resp.sendRedirect("cliente");		
